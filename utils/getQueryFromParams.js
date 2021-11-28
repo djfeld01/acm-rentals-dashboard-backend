@@ -1,79 +1,115 @@
-const moment=require('moment')
+const moment = require('moment');
 
-const getQueryFromParams=(req)=>{
-    const {
-        location,
-        activityType,
-        startDate,
-        endDate,
-        employeeInitials,
-        insurance,
-        unitSize,
-        unitType,
-        unitArea,
-        tenantName
-    } = req.query;
-    
-    const queryObject={}
+const getQueryObjectFromParams = (req) => {
+  const {
+    location,
+    activityType,
+    startDate,
+    endDate,
+    employeeInitials,
+    insurance,
+    unitSize,
+    unitType,
+    unitArea,
+    tenantName,
+  } = req.query;
 
-    if (tenantName){
-        queryObject.tenantName=tenantName
-    }
-    if (location){
-        queryObject.location=location
-    }
-    if(activityType){
-        queryObject.activityType=activityType
-    }
-    if (employeeInitials){
-        queryObject.employeeInitials=employeeInitials
-    }
-    if (insurance){
-        queryObject.insurance=insurance
-    }
-    if (unitSize){
-        queryObject.unitSize=unitSize
-    }
-    if (unitType){
-        queryObject.unitType=unitType
-    }
-    if (unitArea){
-        queryObject.unitArea=unitArea
-    }
+  const queryObject = {};
 
-    if (startDate && endDate){
-        queryObject.moveDate={
-            $gte: moment(startDate).utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-            $lt: moment(endDate).add(1,"days").utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSZ")
-        }
-    }
-    
-    // if (numericFilters) {
-    //     const operatorMap = {
-    //     '>': '$gt',
-    //     '>=': '$gte',
-    //     '=': '$eq',
-    //     '<': '$lt',
-    //     '<=': '$lte',
-    //     }
-    //     const regEx = /\b(<|>|>=|=|<|<=)\b/g
-    //     let filters = numericFilters.replace(
-    //     regEx,
-    //     (match) => `-${operatorMap[match]}-`
-    //     )
-    //     console.log(filters)
-    //     const options = ['weightClass', 'seed', 'year', 'points', 'wins', 'losses']
-    //     filters = filters.split(',').forEach((item) => {
-    //     console.log(item)
-    //     const [field, operator, value] = item.split('-')
-    //     if (options.includes(field)) {
-    //         queryObject[field]= { ...queryObject[field], [operator]: Number(value) }
-    //     }
-    //     })
-    // }
-    console.log(queryObject)
-    
-    return queryObject
-}
+  if (tenantName) {
+    queryObject.tenantName = tenantName;
+  }
+  if (location) {
+    queryObject.location = location;
+  }
+  if (activityType) {
+    queryObject.activityType = activityType;
+  }
+  if (employeeInitials) {
+    queryObject.employeeInitials = employeeInitials;
+  }
+  if (insurance) {
+    queryObject.insurance = insurance;
+  }
+  if (unitSize) {
+    queryObject.unitSize = unitSize;
+  }
+  if (unitType) {
+    queryObject.unitType = unitType;
+  }
+  if (unitArea) {
+    queryObject.unitArea = unitArea;
+  }
 
-module.exports = getQueryFromParams
+  if (startDate && endDate) {
+    queryObject.moveDate = {
+      $gte: moment(startDate)
+        .utcOffset('+0000')
+        .format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+      $lt: moment(endDate)
+        .add(1, 'days')
+        .utcOffset('+0000')
+        .format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+    };
+  }
+
+  return queryObject;
+};
+
+const getQueryArrayFromParams = (req) => {
+  const {
+    location,
+    activityType,
+    startDate,
+    endDate,
+    employeeInitials,
+    insurance,
+    unitSize,
+    unitType,
+    unitArea,
+    tenantName,
+  } = req.query;
+
+  const queryArray = [];
+
+  if (tenantName) {
+    queryArray.push({ tenantName });
+  }
+  if (location) {
+    queryArray.push({ location });
+  }
+  if (activityType) {
+    queryArray.push({ activityType });
+  }
+  if (employeeInitials) {
+    queryArray.push({ employeeInitials });
+  }
+  if (insurance) {
+    queryArray.push({ insurance });
+  }
+  if (unitSize) {
+    queryArray.push({ unitSize });
+  }
+  if (unitType) {
+    queryArray.push({ unitType });
+  }
+  if (unitArea) {
+    queryArray.push({ unitArea });
+  }
+
+  if (startDate && endDate) {
+    const startDateFormatted = new Date(startDate);
+    let endDateFormatted = new Date(endDate);
+    endDateFormatted.setDate(endDateFormatted.getDate() + 1);
+    queryArray.push({
+      moveDate: {
+        $gte: startDateFormatted,
+        $lt: endDateFormatted,
+      },
+    });
+  }
+
+  return queryArray;
+};
+
+module.exports = { getQueryObjectFromParams, getQueryArrayFromParams };

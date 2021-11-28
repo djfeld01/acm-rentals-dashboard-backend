@@ -1,69 +1,122 @@
 const TenantActivity = require('../models/TenantActivityModel');
 const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
-const getQueryFromParams =  require ('../utils/getQueryFromParams')
+const {
+  getQueryObjectFromParams,
+  getQueryArrayFromParams,
+} = require('../utils/getQueryFromParams');
 
-const createTenantActivity= async (req,res)=>{
-    const {tenantName, moveDate}=req.body;
-    const activityAlreadyExists= await TenantActivity.findOne({ tenantName, moveDate })
-    if (activityAlreadyExists){
-        throw new CustomError.BadRequestError('This Tenant Activity already exists'); 
+const createTenantActivity = async (req, res) => {
+  const { tenantName, moveDate } = req.body;
+  const activityAlreadyExists = await TenantActivity.findOne({
+    tenantName,
+    moveDate,
+  });
+  if (activityAlreadyExists) {
+    throw new CustomError.BadRequestError(
+      'This Tenant Activity already exists'
+    );
+  }
+  const tenantActivity = await TenantActivity.create(req.body);
+  res.status(StatusCodes.CREATED).json({ tenantActivity });
+};
+
+const getFilteredTenantActivity = async (req, res) => {
+  const queryObject = getQueryObjectFromParams(req);
+  console.log(queryObject);
+  const tenantActivities = await TenantActivity.find(queryObject).sort(
+    'moveDate'
+  );
+  res
+    .status(StatusCodes.OK)
+    .json({ tenantActivities, count: tenantActivities.length });
+};
+
+const getFilteredTenantActivityTotals = async (req, res) => {
+  const queryArray = getQueryArrayFromParams(req);
+  const tenantActivities = await TenantActivity.aggregate([
+    {
+      $match: {
+        $and: queryArray,
+      },
+    },
+    // { $match: queryObject },
+    {
+      $group: {
+        _id: {
+          location: '$location',
+          activityType: '$activityType',
+          unitType: '$unitType',
+          unitSize: '$unitSize',
+        },
+        total: {
+          $sum: 1,
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]);
+  res.status(StatusCodes.OK).json({ tenantActivities });
+};
+
+const getSingleActivity = async (req, res) => {
+  const { id: activityId } = req.params;
+
+  const activity = await TenantActivity.findOne({
+    _id: activityId,
+  });
+
+  if (!activity) {
+    throw new CustomError.NotFoundError(
+      `No Location found with id: ${activityId}`
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ activity });
+};
+
+const updateTenanatActivity = async (req, res) => {
+  const { id: activityId } = req.params;
+  const activity = await TenantActivity.findOneAndUpdate(
+    { _id: activityId },
+    req.body,
+    {
+      new: true,
+      runValidators: true,
     }
-    const tenantActivity= await TenantActivity.create(req.body)
-    res.status(StatusCodes.CREATED).json({tenantActivity})
-}
+  );
 
-const getFilteredTenantActivity= async (req,res)=>{
+  if (!activity) {
+    throw new CustomError.NotFoundError(
+      `No Location found with id: ${activityId}`
+    );
+  }
 
-    const queryObject=getQueryFromParams(req);
-    console.log(queryObject)
-    const tenantActivities= await TenantActivity.find(queryObject).sort('moveDate')
-    res.status(StatusCodes.OK).json ({tenantActivities, count: tenantActivities.length})
-}
+  res.status(StatusCodes.OK).json({ activity });
+};
 
-const getSingleActivity = async (req,res)=>{
-    const {id:activityId}=req.params;
+const deleteTenantActivity = async (req, res) => {
+  const { id: activityId } = req.params;
+  const activity = await TenantActivity.findOne({ _id: activityId });
 
-    const activity= await TenantActivity.findOne({
-        _id: activityId
-    })
+  if (!activity) {
+    throw new CustomError.NotFoundError(
+      `No Location found with id: ${activityId}`
+    );
+  }
+  activity.remove();
+  res.status(StatusCodes.OK).json({ msg: `Success! Tenant Activity Removed` });
+};
 
-    if (!activity){
-        throw new CustomError.NotFoundError (`No Location found with id: ${activityId}`)
-    }
-
-    res.status(StatusCodes.OK).json({activity})
-}
-
-const updateTenanatActivity=async(req,res)=>{
-    const {id: activityId} = req.params
-    const activity= await TenantActivity.findOneAndUpdate({_id: activityId}, req.body, {
-        new: true,
-        runValidators: true
-    })
-
-    if (!activity){
-        throw new CustomError.NotFoundError(`No Location found with id: ${activityId}`)
-    }
-
-    res.status(StatusCodes.OK).json({activity})
-}
-
-const deleteTenantActivity=async(req,res)=>{
-    const {id: activityId} = req.params
-    const activity= await TenantActivity.findOne({_id: activityId})
-
-    if (!activity){
-        throw new CustomError.NotFoundError(`No Location found with id: ${activityId}`)
-    }
-    activity.remove();
-    res.status(StatusCodes.OK).json({msg: `Success! Tenant Activity Removed`})
-}
-
-module.exports={
-    createTenantActivity,
-    getFilteredTenantActivity,
-    getSingleActivity,
-    updateTenanatActivity,
-    deleteTenantActivity,
-}
+module.exports = {
+  createTenantActivity,
+  getFilteredTenantActivity,
+  getSingleActivity,
+  updateTenanatActivity,
+  deleteTenantActivity,
+  getFilteredTenantActivityTotals,
+};
