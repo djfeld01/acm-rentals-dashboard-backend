@@ -36,9 +36,7 @@ app.use(
 app.use(express.static('./public'));
 app.use(express.json());
 app.use(helmet());
-app.use(
-  cors({ origin: 'http://www.localhost:3000', optionsSuccessStatus: 200 })
-);
+app.use(cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
 
 app.use(morgan('tiny'));
 app.use(cookieParser(process.env.JWT_SECRET));
