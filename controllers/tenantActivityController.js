@@ -24,9 +24,12 @@ const createTenantActivity = async (req, res) => {
 const getFilteredTenantActivity = async (req, res) => {
   const queryObject = getQueryObjectFromParams(req);
   console.log(queryObject);
-  const tenantActivities = await TenantActivity.find(queryObject).sort(
-    'moveDate'
-  );
+  const tenantActivities = await TenantActivity.find(queryObject)
+    .sort('moveDate')
+    .populate({
+      path: 'location',
+      select: 'siteName siteAbbreviation',
+    });
   res
     .status(StatusCodes.OK)
     .json({ tenantActivities, count: tenantActivities.length });
@@ -55,8 +58,34 @@ const getFilteredTenantActivityTotals = async (req, res) => {
       },
     },
     {
+      $group: {
+        _id: {
+          location: '$_id.location',
+          activityType: '$_id.activityType',
+        },
+        units: {
+          $push: {
+            unitType: '$_id.unitType',
+            unitSize: '$_id.unitSize',
+            sizeTotal: '$total',
+          },
+        },
+        // total: {
+        //   $sum: '$sizeTotal',
+        // },
+      },
+    },
+    {
       $sort: {
         _id: -1,
+      },
+    },
+    {
+      $lookup: {
+        from: 'locations',
+        localField: '_id.location',
+        foreignField: '_id',
+        as: 'locationInfo',
       },
     },
   ]);
