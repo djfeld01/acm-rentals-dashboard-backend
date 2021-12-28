@@ -70,9 +70,9 @@ const getFilteredTenantActivityTotals = async (req, res) => {
             sizeTotal: '$total',
           },
         },
-        // total: {
-        //   $sum: '$sizeTotal',
-        // },
+        total: {
+          $sum: '$total',
+        },
       },
     },
     {
