@@ -23,7 +23,7 @@ const createTenantActivity = async (req, res) => {
 
 const getFilteredTenantActivity = async (req, res) => {
   const queryObject = getQueryObjectFromParams(req);
-  console.log(queryObject);
+  //console.log(queryObject);
   const tenantActivities = await TenantActivity.find(queryObject)
     .sort('moveDate')
     .populate({
@@ -72,6 +72,45 @@ const getFilteredTenantActivityTotals = async (req, res) => {
         },
         total: {
           $sum: '$total',
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+    {
+      $lookup: {
+        from: 'locations',
+        localField: '_id.location',
+        foreignField: '_id',
+        as: 'locationInfo',
+      },
+    },
+  ]);
+  res.status(StatusCodes.OK).json({ tenantActivities });
+};
+
+const getActivitiesByEmployee = async (req, res) => {
+  const queryArray = getQueryArrayFromParams(req);
+  const tenantActivities = await TenantActivity.aggregate([
+    {
+      $match: {
+        $and: queryArray,
+      },
+    },
+    // { $match: queryObject },
+    {
+      $group: {
+        _id: {
+          location: '$location',
+          activityType: '$activityType',
+          employeeInitials: '$employeeInitials',
+          insurance: '$insurance',
+        },
+        total: {
+          $sum: 1,
         },
       },
     },
@@ -148,4 +187,5 @@ module.exports = {
   updateTenanatActivity,
   deleteTenantActivity,
   getFilteredTenantActivityTotals,
+  getActivitiesByEmployee,
 };
