@@ -112,4 +112,7 @@ const getQueryArrayFromParams = (req) => {
   return queryArray;
 };
 
-module.exports = { getQueryObjectFromParams, getQueryArrayFromParams };
+module.exports = {
+  getQueryObjectFromParams,
+  getQueryArrayFromParams,
+};

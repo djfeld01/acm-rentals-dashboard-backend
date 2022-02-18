@@ -8,11 +8,13 @@ const {
   deleteTenantActivity,
   getFilteredTenantActivityTotals,
   getActivitiesByEmployee,
+  getDashboardActivity,
 } = require('../controllers/tenantActivityController');
 
 router.route('/').post(createTenantActivity).get(getFilteredTenantActivity);
 
 router.route('/employee').get(getActivitiesByEmployee);
+router.route('/dashboard').get(getDashboardActivity);
 router.route('/totals').get(getFilteredTenantActivityTotals);
 
 router

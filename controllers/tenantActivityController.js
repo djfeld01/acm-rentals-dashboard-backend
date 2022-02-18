@@ -5,6 +5,8 @@ const {
   getQueryObjectFromParams,
   getQueryArrayFromParams,
 } = require('../utils/getQueryFromParams');
+const getDates = require('../utils/getDates');
+const dashboardAggregate = require('../utils/dashboardAggregate');
 
 const createTenantActivity = async (req, res) => {
   const { tenantName, moveDate } = req.body;
@@ -131,6 +133,17 @@ const getActivitiesByEmployee = async (req, res) => {
   res.status(StatusCodes.OK).json({ tenantActivities });
 };
 
+const getDashboardActivity = async (req, res) => {
+  const { today, monthStart, weekStart, yearStart } = getDates();
+
+  const daily = await dashboardAggregate(today, today);
+  const weekly = await dashboardAggregate(weekStart, today);
+  const yearly = await dashboardAggregate(yearStart, today);
+  const monthly = await dashboardAggregate(monthStart, today);
+
+  res.status(StatusCodes.OK).json({ daily, weekly, monthly, yearly });
+};
+
 const getSingleActivity = async (req, res) => {
   const { id: activityId } = req.params;
 
@@ -188,4 +201,5 @@ module.exports = {
   deleteTenantActivity,
   getFilteredTenantActivityTotals,
   getActivitiesByEmployee,
+  getDashboardActivity,
 };
