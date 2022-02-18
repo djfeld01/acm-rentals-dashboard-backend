@@ -135,7 +135,7 @@ const getActivitiesByEmployee = async (req, res) => {
 
 const getDashboardActivity = async (req, res) => {
   const { today, monthStart, weekStart, yearStart } = getDates();
-
+  console.log(today, monthStart, weekStart, yearStart);
   const daily = await dashboardAggregate(today, today);
   const weekly = await dashboardAggregate(weekStart, today);
   const yearly = await dashboardAggregate(yearStart, today);
