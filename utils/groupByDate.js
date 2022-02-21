@@ -1,18 +1,8 @@
-const TenantActivity = require('../models/TenantActivityModel');
-const getDates = require('./getDates');
-const groupByDates = require('./groupByDate');
-
-const dashboardAggregate = async (startDate, endDate) => {
-  const startDateFormatted = new Date(startDate);
-  let endDateFormatted = new Date(endDate);
-  endDateFormatted.setDate(endDateFormatted.getDate() + 1);
-
-  const response = await TenantActivity.aggregate([
+const groupByDate = (date) => {
+  const response = [
     {
       $match: {
-        $and: [
-          { moveDate: { $gte: startDateFormatted, $lt: endDateFormatted } },
-        ],
+        $and: [{ moveDate: { $gte: date } }],
         //$or: [{ activityType: 'MoveIn' }, { activtyType: 'MoveOut' }],
       },
     },
@@ -65,8 +55,8 @@ const dashboardAggregate = async (startDate, endDate) => {
         },
         units: {
           $push: {
-            unitSize: '$_id.unitSize',
             unitType: '$_id.unitType',
+            unitSize: '$_id.unitSize',
             unitMoveIns: '$moveIns',
             unitMoveOuts: '$moveOuts',
             unitNet: '$net',
@@ -96,29 +86,9 @@ const dashboardAggregate = async (startDate, endDate) => {
         'locationInfo.slLocationLocal': 1,
       },
     },
-  ]);
+  ];
 
   return response;
 };
 
-const dashboardAggregate2 = async () => {
-  const { today, monthStart, weekStart, yearStart } = getDates();
-  const daily = groupByDates(today);
-  const weekly = groupByDates(weekStart);
-  const monthly = groupByDates(monthStart);
-  const annually = groupByDates(yearStart);
-
-  const response = await TenantActivity.aggregate([
-    {
-      $facet: {
-        annually,
-        monthly,
-        weekly,
-        daily,
-      },
-    },
-  ]);
-
-  return response;
-};
-module.exports = dashboardAggregate2;
+module.exports = groupByDate;

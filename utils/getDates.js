@@ -52,11 +52,11 @@ const getYearStart = () => {
 };
 
 const getDates = () => {
-  const today = getToday();
-  const yesterday = getYesterday();
-  const monthStart = getMonthStart();
-  const weekStart = getWeekStart();
-  const yearStart = getYearStart();
+  const today = new Date(getToday());
+  const yesterday = new Date(getYesterday());
+  const monthStart = new Date(getMonthStart());
+  const weekStart = new Date(getWeekStart());
+  const yearStart = new Date(getYearStart());
 
   return { today, monthStart, yesterday, weekStart, yearStart };
 };

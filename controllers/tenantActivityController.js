@@ -5,7 +5,7 @@ const {
   getQueryObjectFromParams,
   getQueryArrayFromParams,
 } = require('../utils/getQueryFromParams');
-const getDates = require('../utils/getDates');
+
 const dashboardAggregate = require('../utils/dashboardAggregate');
 
 const createTenantActivity = async (req, res) => {
@@ -114,6 +114,13 @@ const getActivitiesByEmployee = async (req, res) => {
         total: {
           $sum: 1,
         },
+        units: {
+          $push: {
+            unitName: '$unitName',
+            unitSize: '$unitSize',
+            unitType: '$unitType',
+          },
+        },
       },
     },
     {
@@ -134,14 +141,8 @@ const getActivitiesByEmployee = async (req, res) => {
 };
 
 const getDashboardActivity = async (req, res) => {
-  const { today, monthStart, weekStart, yearStart } = getDates();
-  console.log(today, monthStart, weekStart, yearStart);
-  const daily = await dashboardAggregate(today, today);
-  const weekly = await dashboardAggregate(weekStart, today);
-  const yearly = await dashboardAggregate(yearStart, today);
-  const monthly = await dashboardAggregate(monthStart, today);
-
-  res.status(StatusCodes.OK).json({ daily, weekly, monthly, yearly });
+  const activities = await dashboardAggregate();
+  res.status(StatusCodes.OK).json({ activities });
 };
 
 const getSingleActivity = async (req, res) => {
