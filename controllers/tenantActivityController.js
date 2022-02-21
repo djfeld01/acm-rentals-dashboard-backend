@@ -116,6 +116,7 @@ const getActivitiesByEmployee = async (req, res) => {
         },
         units: {
           $push: {
+            moveDate: '$moveDate',
             unitName: '$unitName',
             unitSize: '$unitSize',
             unitType: '$unitType',
