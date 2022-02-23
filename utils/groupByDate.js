@@ -1,4 +1,4 @@
-const groupByDate = (date) => {
+const groupByDate = (date, desc) => {
   const response = [
     {
       $match: {
@@ -52,6 +52,7 @@ const groupByDate = (date) => {
       $group: {
         _id: {
           location: '$_id.location',
+          date: desc,
         },
         units: {
           $push: {
@@ -71,19 +72,6 @@ const groupByDate = (date) => {
         net: {
           $sum: '$net',
         },
-      },
-    },
-    {
-      $lookup: {
-        from: 'locations',
-        localField: '_id.location',
-        foreignField: '_id',
-        as: 'locationInfo',
-      },
-    },
-    {
-      $sort: {
-        'locationInfo.slLocationLocal': 1,
       },
     },
   ];
