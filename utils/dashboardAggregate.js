@@ -155,11 +155,11 @@ const dashboardAggregate2 = async () => {
         as: 'locationInfo',
       },
     },
-    // {
-    //   $sort: {
-    //     'locationInfo.slLocationLocal': 1,
-    //   },
-    // },
+    {
+      $sort: {
+        'locationInfo.slLocationLocal': 1,
+      },
+    },
   ]);
   //console.log(response);
   return response;
