@@ -142,8 +142,8 @@ const getActivitiesByEmployee = async (req, res) => {
 };
 
 const getDashboardActivity = async (req, res) => {
-  const activities = await dashboardAggregate();
-  res.status(StatusCodes.OK).json({ activities });
+  const data = await dashboardAggregate();
+  res.status(StatusCodes.OK).json({ data });
 };
 
 const getSingleActivity = async (req, res) => {
