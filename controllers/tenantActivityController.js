@@ -11,7 +11,6 @@ const dashboardAggregate = require('../utils/dashboardAggregate');
 const createTenantActivity = async (req, res) => {
   const { tenantName, moveDate } = req.body;
   const activityAlreadyExists = await TenantActivity.findOne({
-    unitName,
     moveDate,
   });
   if (activityAlreadyExists) {
