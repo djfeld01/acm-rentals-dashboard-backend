@@ -9,8 +9,9 @@ const {
 const dashboardAggregate = require('../utils/dashboardAggregate');
 
 const createTenantActivity = async (req, res) => {
-  const { tenantName, moveDate } = req.body;
+  const { unitName, moveDate } = req.body;
   const activityAlreadyExists = await TenantActivity.findOne({
+    unitName,
     moveDate,
   });
   if (activityAlreadyExists) {
@@ -20,6 +21,14 @@ const createTenantActivity = async (req, res) => {
   }
   const tenantActivity = await TenantActivity.create(req.body);
   res.status(StatusCodes.CREATED).json({ tenantActivity });
+};
+
+const addManyTenantActivities = async (req, res) => {
+  const tenantActivities = await TenantActivity.insertMany(req.body, {
+    ordered: false,
+  });
+
+  res.status(StatusCodes.CREATED).json({ tenantActivities });
 };
 
 const getFilteredTenantActivity = async (req, res) => {
@@ -203,4 +212,5 @@ module.exports = {
   getFilteredTenantActivityTotals,
   getActivitiesByEmployee,
   getDashboardActivity,
+  addManyTenantActivities,
 };
