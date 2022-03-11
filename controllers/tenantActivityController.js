@@ -27,7 +27,7 @@ const addManyTenantActivities = async (req, res) => {
   const tenantActivities = await TenantActivity.insertMany(req.body, {
     ordered: false,
   });
-
+  console.log('We made it to addManyTenantActivities');
   res.status(StatusCodes.CREATED).json({ tenantActivities });
 };
 
