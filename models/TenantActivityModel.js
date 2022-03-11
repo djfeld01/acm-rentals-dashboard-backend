@@ -62,4 +62,4 @@ const TenantActivitySchema = new mongoose.Schema({
 });
 
 TenantActivitySchema.index({ moveDate: 1 }, { unique: true });
-module.exports = mongoose.model('TenantActivity_dev', TenantActivitySchema);
+module.exports = mongoose.model('TenantActivity', TenantActivitySchema);
