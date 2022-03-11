@@ -24,7 +24,7 @@ const createTenantActivity = async (req, res) => {
 };
 
 const addManyTenantActivities = async (req, res) => {
-  const tenantActivities = await TenantActivity.insertMany(req.body, {
+  const tenantActivities = await TenantActivity.insertMany(req.body.data, {
     ordered: false,
   });
   console.log(req.body);
