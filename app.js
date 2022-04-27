@@ -9,6 +9,7 @@ const rateLimiter = require('express-rate-limit');
 //packages
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const bp = require('body-parser');
 
 const express = require('express');
 const app = express();
@@ -17,6 +18,7 @@ const app = express();
 const connectDB = require('./db/connect');
 
 // routers
+const unitRouter = require('./routes/unitRoutes');
 const authRouter = require('./routes/authRoutes');
 const locationRouter = require('./routes/locationRoutes');
 const tenantActivityRouter = require('./routes/tenantActivityRoutes');
@@ -33,10 +35,10 @@ app.use(
     max: 100,
   })
 );
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb' }));
+app.use(bp.json({ limit: '50mb' }));
+app.use(bp.urlencoded({ limit: '50mb' }));
 app.use(express.static('./public'));
-app.use(express.json());
+//app.use(express.json());
 app.use(helmet());
 app.use(cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
 
@@ -47,17 +49,13 @@ app.get('/', (req, res) => {
   res.send('acm-rentals-dashboard');
 });
 
+app.use('/api/v1/unit', unitRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/location', locationRouter);
 app.use('/api/v1/tenantActivity', tenantActivityRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
-
-// app.get('/', (req,res)=>{
-
-//     res.send(`Rentals API`)
-// })
 
 const port = process.env.PORT || 5000;
 
