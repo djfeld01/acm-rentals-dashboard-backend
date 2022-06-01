@@ -1,4 +1,6 @@
 const moment = require('moment');
+const mongoose=require ('mongoose')
+const ObjectId=mongoose.Types.ObjectId;
 
 const getQueryObjectFromParams = (req) => {
   const {
@@ -58,7 +60,7 @@ const getQueryObjectFromParams = (req) => {
 
 const getQueryArrayFromParams = (req) => {
   const {
-    location,
+    locationId,
     activityType,
     startDate,
     endDate,
@@ -75,7 +77,8 @@ const getQueryArrayFromParams = (req) => {
   if (tenantName) {
     queryArray.push({ tenantName });
   }
-  if (location) {
+  if (locationId) {
+    const location= ObjectId(locationId)
     queryArray.push({ location });
   }
   if (activityType) {
@@ -108,7 +111,7 @@ const getQueryArrayFromParams = (req) => {
       },
     });
   }
-
+  console.log(queryArray)
   return queryArray;
 };
 

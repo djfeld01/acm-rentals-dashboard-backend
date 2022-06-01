@@ -27,6 +27,24 @@ const UnitSchema = new mongoose.Schema({
     type: Number,
     required: [true, `Please provide the unitLength`],
   },
+  slLocationId: {
+    type: Number,
+    required: [true, `Please provide the Sitelink Location Id to slLocationId`],
+  },
+  pushRateThreshold: {
+    type: Number,
+    required: [
+      true,
+      `Please provide the push rate threshhold (defaults to .85)`,
+    ],
+  },
+  pushRateIncrease: {
+    type: Number,
+    required: [
+      true,
+      `Please provide the push rate increase (defaults to 1.05)`,
+    ],
+  },
 });
 
 module.exports = mongoose.model('Unit', UnitSchema);

@@ -1,4 +1,7 @@
 const TenantActivity = require('../models/TenantActivityModel');
+// TenantActivity.on('index', (error) => {
+//   console.log(error.message);
+// });
 const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
 const {
@@ -24,11 +27,40 @@ const createTenantActivity = async (req, res) => {
 };
 
 const addManyTenantActivities = async (req, res) => {
-  const tenantActivities = await TenantActivity.insertMany(req.body.data, {
-    ordered: false,
-  });
+  try {
+    const tenantActivities = await TenantActivity.insertMany(req.body.data, {
+      ordered: false,
+    });
+  } catch (e) {
+    //console.log(e);
+  }
+  //console.log(`we're doing other things`);
+
   res.status(StatusCodes.CREATED).json({ tenantActivities });
 };
+
+// const addManyTenantActivities = async (req, res) => {
+//   const { data } = req.body;
+//   const tenantActivities = data.map(async (item) => {
+//     const { unitName, moveDate } = item;
+//     // console.log(unitName, moveDate);
+//     const activityAlreadyExists = await TenantActivity.findOne({
+//       unitName,
+//       moveDate,
+//     });
+//     if (activityAlreadyExists) {
+//       // throw new CustomError.BadRequestError(
+//       //   'This Tenant Activity already exists'
+//       // );
+//       return 'duplicate';
+//     }
+//     const tenantActivity = await TenantActivity.create(item);
+//     console.log(tenantActivity);
+//     return tenantActivity.tenantName;
+//   });
+
+//   res.status(StatusCodes.CREATED).json({ tenantActivities });
+// };
 
 const getFilteredTenantActivity = async (req, res) => {
   const queryObject = getQueryObjectFromParams(req);
@@ -44,6 +76,126 @@ const getFilteredTenantActivity = async (req, res) => {
     .json({ tenantActivities, count: tenantActivities.length });
 };
 
+const getFilteredTenantActivityTotaledByDay = async (req, res) => {
+  const queryArray = getQueryArrayFromParams(req);
+  const tenantActivities = await TenantActivity.aggregate([
+    {
+      $match: {
+        $and: queryArray,
+      },
+    },
+    // { $match: queryObject },
+    {
+      $group: {
+        _id: {
+          month: { $month: '$moveDate' },
+          year: { $year: '$moveDate' },
+          day: { $dayOfMonth: '$moveDate' },
+        },
+        moveIns: {
+          $sum: {
+            $cond: {
+              if: { $eq: ['$activityType', 'MoveIn'] },
+              then: 1,
+              else: 0,
+            },
+          },
+        },
+        moveOuts: {
+          $sum: {
+            $cond: {
+              if: { $eq: ['$activityType', 'MoveOut'] },
+              then: 1,
+              else: 0,
+            },
+          },
+        },
+        net: {
+          $sum: {
+            $cond: {
+              if: { $eq: ['$activityType', 'MoveIn'] },
+              then: 1,
+              else: {
+                $cond: {
+                  if: { $eq: ['$activityType', 'MoveOut'] },
+                  then: -1,
+                  else: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]);
+  res.status(StatusCodes.OK).json({ tenantActivities });
+};
+
+const getFilteredTenantActivityTotaledByMonth = async (req, res) => {
+  const queryArray = getQueryArrayFromParams(req);
+  const tenantActivities = await TenantActivity.aggregate([
+    {
+      $match: {
+        $and: queryArray,
+      },
+    },
+    // { $match: queryObject },
+    {
+      $group: {
+        _id: {
+          month: { $month: '$moveDate' },
+          year: { $year: '$moveDate' },
+        },
+        moveIns: {
+          $sum: {
+            $cond: {
+              if: { $eq: ['$activityType', 'MoveIn'] },
+              then: 1,
+              else: 0,
+            },
+          },
+        },
+        moveOuts: {
+          $sum: {
+            $cond: {
+              if: { $eq: ['$activityType', 'MoveOut'] },
+              then: 1,
+              else: 0,
+            },
+          },
+        },
+        net: {
+          $sum: {
+            $cond: {
+              if: { $eq: ['$activityType', 'MoveIn'] },
+              then: 1,
+              else: {
+                $cond: {
+                  if: { $eq: ['$activityType', 'MoveOut'] },
+                  then: -1,
+                  else: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]);
+  res.status(StatusCodes.OK).json({ tenantActivities });
+};
 const getFilteredTenantActivityTotals = async (req, res) => {
   const queryArray = getQueryArrayFromParams(req);
   const tenantActivities = await TenantActivity.aggregate([
@@ -212,4 +364,6 @@ module.exports = {
   getActivitiesByEmployee,
   getDashboardActivity,
   addManyTenantActivities,
+  getFilteredTenantActivityTotaledByDay,
+  getFilteredTenantActivityTotaledByMonth,
 };

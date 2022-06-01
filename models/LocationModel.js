@@ -41,6 +41,12 @@ const LocationSchema = new mongoose.Schema({
   currentOccupancy: {
     type: Number,
   },
+  phoneNumber: {
+    type: String,
+  },
+  twilioNumber: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model('Location', LocationSchema);

@@ -5,6 +5,7 @@ const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
 
 const createLocation = async (req, res) => {
+  console.log(req.body);
   const { slLocationId } = req.body;
   const locationAlreadyExists = await Location.findOne({ slLocationId });
   if (locationAlreadyExists) {

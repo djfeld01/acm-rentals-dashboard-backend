@@ -22,6 +22,7 @@ const unitRouter = require('./routes/unitRoutes');
 const authRouter = require('./routes/authRoutes');
 const locationRouter = require('./routes/locationRoutes');
 const tenantActivityRouter = require('./routes/tenantActivityRoutes');
+const unitOccupancyRouter = require('./routes/unitOccupancyRoutes');
 
 // middleware
 const notFoundMiddleware = require('./middleware/not-found');
@@ -53,6 +54,7 @@ app.use('/api/v1/unit', unitRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/location', locationRouter);
 app.use('/api/v1/tenantActivity', tenantActivityRouter);
+app.use('/api/v1/unitOccupancy', unitOccupancyRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

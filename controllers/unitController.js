@@ -6,7 +6,6 @@ const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
 
 const createUnit = async (req, res) => {
-  console.log(req.body);
   const { slLocationId, unitArea, unitSize, unitType, unitWidth, unitLength } =
     req.body;
   const location = await Location.findOne({ slLocationId });
@@ -31,10 +30,49 @@ const createUnit = async (req, res) => {
     unitType,
     unitWidth,
     unitLength,
+    slLocationId,
   });
   res.status(StatusCodes.CREATED).json({ unit });
 };
 
+const getUnit = async (req, res) => {
+  const { id: unitId } = req.params;
+  const unit = await Unit.findOne({
+    _id: unitId,
+  });
+  if (!unit) {
+    throw new CustomError.NotFoundError(`No unit found with id: ${unitId}`);
+  }
+  res.status(StatusCodes.OK).json({ unit });
+};
+
+const updateUnit = async (req, res) => {
+  const { id: unitId } = req.params;
+  const unit = await Unit.findOneAndUpdate({ _id: unitId }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!unit) {
+    throw new CustomError.NotFoundError(`No unit found with id: ${unitId}`);
+  }
+  res.status(StatusCodes.OK).json({ unit });
+};
+
+const deleteUnit = async (req, res) => {
+  const { id: unitId } = req.params;
+  const unit = await Unit.findOne({
+    _id: unitId,
+  });
+  if (!unit) {
+    throw new CustomError.NotFoundError(`No unit found with id: ${unitId}`);
+  }
+  unit.remove();
+  res.status(StatusCodes.OK).json({ unit });
+};
+
 module.exports = {
   createUnit,
+  getUnit,
+  updateUnit,
+  deleteUnit,
 };

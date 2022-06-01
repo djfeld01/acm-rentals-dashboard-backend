@@ -60,7 +60,14 @@ const TenantActivitySchema = new mongoose.Schema({
     trim: true,
   },
 });
-
 TenantActivitySchema.index({ moveDate: 1 }, { unique: true });
+
+// TenantActivitySchema.createIndexes(function (err) {
+//   if (err) return console.log(err);
+// });
+
+TenantActivitySchema.post('insertMany', function () {
+  console.log(`we did this after inserting many`);
+});
 
 module.exports = mongoose.model('TenantActivity', TenantActivitySchema);
